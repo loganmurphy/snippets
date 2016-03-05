@@ -1,13 +1,43 @@
-class User():
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
+
+from base import Base
+
+from models import link_tables
+
+db = SQLAlchemy()
+
+class User(Base):
+  __tablename__ = 'user'
+  id = db.Column(db.String(500), unique=True, primary_key=True)
+
+  subscriptions = db.relationship(
+      'Group', 
+      secondary='subscription',
+      backref=db.backref('subscribers', lazy='dynamic')
+    )
+
+  subscriptions = db.relationship(
+      'Group', 
+      secondary='membership',
+      backref=db.backref('subscribers', lazy='dynamic')
+    )
+
   def __init__(self, email):
     self.email = email
 
-  def is_active(self):
-    return True
+  def get_username(self):
+    return self.email
 
   def get_id(self):
     return self.email
 
+  @property  
+  def is_active(self):
+    return True
+
+  @property
   def is_authenticated(self):
     return True
 

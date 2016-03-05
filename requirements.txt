@@ -1,3 +1,4 @@
 rauth
 Flask
 Flask-Login
+flask-sqlalchemy

@@ -63,3 +63,5 @@ target/
 
 config.py
 *.swp
+*.db
+dbdir/
