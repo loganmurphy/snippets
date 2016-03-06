@@ -14,18 +14,18 @@ class User(Base):
 
   subscriptions = db.relationship(
       'Group', 
-      secondary='subscription',
+      secondary='group_subscription',
       backref=db.backref('subscribers', lazy='dynamic')
     )
 
   subscriptions = db.relationship(
       'Group', 
-      secondary='membership',
+      secondary='group_membership',
       backref=db.backref('subscribers', lazy='dynamic')
     )
 
-  def __init__(self, email):
-    self.email = email
+  def __init__(self, id):
+    self.id = id
 
   def get_username(self):
     return self.email
