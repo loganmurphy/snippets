@@ -2,6 +2,7 @@ import os
 import sys
 
 from flask import Flask, render_template
+from flask_bootstrap import Bootstrap
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -13,6 +14,8 @@ from models.user import User
 from models.link_tables import *
 
 app = Flask(__name__)
+Bootstrap(app)
+
 app.config.from_object('config')
 app.secret_key = 'this is very secret'
 
@@ -32,6 +35,3 @@ class Database():
     self.session = session
 
 db = Database(db_session)
-
-
-

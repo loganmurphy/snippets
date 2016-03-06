@@ -8,7 +8,7 @@ from auth import OAuthSignIn
 from models.user import User
 from models.group import Group
 
-from app import app
+from app import app, db
 
 import pdb
 
@@ -52,13 +52,57 @@ def oauth_callback(provider):
 def login():
   if current_user is not None and current_user.is_authenticated:
     return redirect(url_for('index'))
-  return render_template('login.html',
-               title='Sign In')
+  return render_template('login.html')
 
 @app.route('/')
 @login_required
 def index():
   return render_template('index.html')
+
+@app.route('/groups')
+@login_required
+def groups():
+  groups = db.session.query(Group).order_by(Group.id)
+  return render_template('groups.html',
+    groups=groups
+  )
+
+@app.route('/groups/<name>')
+@login_required
+def group_detail(name):
+  group = db.session.query(Group).filter_by(id=name).one()
+  return render_template('group_detail.html',
+    group=group
+  )
+
+
+@app.route('/users/<email>')
+@login_required
+def user_detail(email):
+  user = db.session.query(User).filter_by(id=email).one()
+  return render_template('user_detail.html',
+    user=user
+  )
+
+
+### NAV
+
+from flask_nav import Nav
+from flask_nav.elements import Navbar, View
+
+nav = Nav()
+
+@nav.navigation()
+def mynavbar():
+  return Navbar(
+    'mysite',
+    View('Home', 'index'),
+  )
+# ...
+
+nav.init_app(app)
+
+### 
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", debug=True)

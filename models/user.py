@@ -12,17 +12,11 @@ class User(Base):
   __tablename__ = 'user'
   id = db.Column(db.String(500), unique=True, primary_key=True)
 
-  subscriptions = db.relationship(
-      'Group', 
-      secondary='group_subscription',
-      backref=db.backref('subscribers', lazy='dynamic')
-    )
-
-  subscriptions = db.relationship(
-      'Group', 
-      secondary='group_membership',
-      backref=db.backref('subscribers', lazy='dynamic')
-    )
+  group_subscriptions = db.relationship('GroupSubscription', back_populates='user')
+  users_following = db.relationship('UserSubscription', foreign_keys="[UserSubscription.from_user_id]")
+  users_followees = db.relationship('UserSubscription', foreign_keys="[UserSubscription.to_user_id]")
+  group_memberships = db.relationship('GroupMembership')
+  
 
   def __init__(self, id):
     self.id = id
@@ -32,6 +26,10 @@ class User(Base):
 
   def get_id(self):
     return self.email
+
+  @property  
+  def email(self):
+    return self.id
 
   @property  
   def is_active(self):
