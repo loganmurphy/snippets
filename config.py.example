@@ -1,7 +1,19 @@
-OAUTH_CREDENTIALS = {
-  'google': {
-    'id': 'ID',
-    'secret': 'SECRET'
+class Config(object):
+    DEBUG = False
+    TESTING = False
+    DATABASE_URI = 'sqlite:///lite.db'
+    SECRET_KEY = 'this is very secret'
+    OAUTH_CREDENTIALS = {
+      'google': {
+        'id': 'ID',
+        'secret': 'SECRET'
+      }
+    }
+    IMAP_CONFIG = {
+      'host': 'HOST',
+      'username': 'USERNAME',
+      'password': 'PASSWORD'
+    }
 
-  }
-}
+class DevelopmentConfig(Config):
+    DEBUG = True

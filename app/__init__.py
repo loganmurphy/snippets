@@ -16,10 +16,11 @@ from models.link_tables import *
 app = Flask(__name__)
 Bootstrap(app)
 
-app.config.from_object('config')
-app.secret_key = 'this is very secret'
+app.config.from_object('config.DevelopmentConfig')
+app.secret_key = app.config['SECRET_KEY']
 
-engine = create_engine('sqlite:///dbdir/lite.db')
+print app.config['DATABASE_URI']
+engine = create_engine(app.config['DATABASE_URI'])
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
