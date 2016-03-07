@@ -12,21 +12,18 @@ to setup:
 
 
 TODO:
-Build as dumb HTML forms
-DONE - view groups
-DONE - view user
-- subscribe to group
-DONE - subscripe to user
-
-group admin UI
-- create group
-- add user to group
-
-Build a search interface
-- group & user autocomplete APIs
-
-Rebuild the initial pages as API-driven?
-
-Clean up
-- break out pages into blueprints?
-- get more consistent in code & html with subscribe vs follow vs member
+- Build as dumb HTML forms
+  - view groups DONE
+  - view user DONE
+  - subscribe to group DONE
+  - subscripe to user DONE
+- group admin UI
+  - figure out how we want to admin this
+  - create group
+  - add user to group
+- Build a search interface
+  - group & user autocomplete APIs
+- Clean up
+  - get more consistent in code & html with subscribe vs follow vs member
+  - Rebuild the initial pages as API-driven?
+  - break out pages into blueprints?
