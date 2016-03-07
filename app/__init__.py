@@ -19,7 +19,6 @@ Bootstrap(app)
 app.config.from_object('config.DevelopmentConfig')
 app.secret_key = app.config['SECRET_KEY']
 
-print app.config['DATABASE_URI']
 engine = create_engine(app.config['DATABASE_URI'])
 
 db_session = scoped_session(sessionmaker(autocommit=False,

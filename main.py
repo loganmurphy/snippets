@@ -14,6 +14,8 @@ from logic.group_logic import GroupLogic
 
 from app import app, db
 
+from email_processor import EmailProcessor
+
 import pdb
 
 login_manager = LoginManager()

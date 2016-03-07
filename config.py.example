@@ -10,7 +10,8 @@ class Config(object):
       }
     }
     IMAP_CONFIG = {
-      'host': 'HOST',
+      'imap_host': 'imap.gmail.com',
+      'smtp_host': 'smtp.gmail.com',
       'username': 'USERNAME',
       'password': 'PASSWORD'
     }
