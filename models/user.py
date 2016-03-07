@@ -30,6 +30,16 @@ class User(Base):
     self.email = email
     self.picture = picture
 
+  # TODO: pull these into business logic classes
+  def is_following_group(self, group):
+    return group.id in [g.group_id for g in self.group_subscriptions]
+
+  def is_in_group(self, group):
+    return group.id in [g.group_id for g in self.group_memberships]
+
+  def is_following_user(self, user):
+    return user.id in [u.to_user.id for u in self.users_following]
+
   def get_username(self):
     return self.email.split('@')[0]
 

@@ -2,9 +2,27 @@
 
 {% block title %}Group detail: {{group.name}}{% endblock %}
 
+{% from "bootstrap/utils.html" import form_button %}
+
 {% block content %}
   <div class="container">
     <h1>{{group.name}}</h1>
+
+    {% if current_user.is_in_group(group) %}
+      You are a member of this group. LEAVE?
+    {% else %}
+      You not are a member of this group. JOIN?
+    {% endif %}
+
+    <p/><p/>
+
+    {% if current_user.is_following_group(group) %}
+      You are a subscriber of this group. {{form_button(url_for('group_unsubscribe', name=group.name),
+          'Unsubscribe?')}}
+    {% else %}
+      You not are a subscriber of this group. {{form_button(url_for('group_subscribe', name=group.name),
+          'Subscribe?')}}
+    {% endif %}
 
     <h2>Members</h2>
      {% for member_link in group.members %}

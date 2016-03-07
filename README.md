@@ -8,10 +8,10 @@ cribbed almost entirely from http://stackoverflow.com/questions/9499286/using-go
 
 TODO:
 Build as dumb HTML forms
-- view groups
-- view user
+DONE - view groups
+DONE - view user
 - subscribe to group
-- subscripe to user
+DONE - subscripe to user
 
 group admin UI
 - create group
@@ -24,3 +24,4 @@ Rebuild the initial pages as API-driven?
 
 Clean up
 - break out pages into blueprints?
+- get more consistent in code & html with subscribe vs follow vs member

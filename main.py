@@ -8,6 +8,9 @@ from auth import OAuthSignIn
 from models.user import User
 from models.group import Group
 
+from logic.user_logic import UserLogic
+from logic.group_logic import GroupLogic
+
 from app import app, db
 
 import pdb
@@ -67,7 +70,7 @@ def login():
 @app.route('/')
 @login_required
 def index():
-  return render_template('index.html')
+  return redirect('groups')
 
 @app.route('/logout')
 @login_required
@@ -75,10 +78,12 @@ def logout():
   logout_user()
   return render_template('index.html')
 
+## display pages
+
 @app.route('/groups')
 @login_required
 def groups():
-  groups = db.session.query(Group).order_by(Group.id)
+  groups = GroupLogic.find_all_groups()
   return render_template('groups.html',
     groups=groups
   )
@@ -86,7 +91,7 @@ def groups():
 @app.route('/groups/<name>')
 @login_required
 def group_detail(name):
-  group = db.session.query(Group).filter_by(id=name).one()
+  group = GroupLogic.find_group_by_name(name)
   return render_template('group_detail.html',
     group=group
   )
@@ -95,10 +100,39 @@ def group_detail(name):
 @app.route('/users/<email>')
 @login_required
 def user_detail(email):
-  user = db.session.query(User).filter_by(id=email).one()
+  user = UserLogic.find_user_by_email(email)
   return render_template('user_detail.html',
     user=user
   )
+
+# shitty APIs
+@app.route('/users/<email>/subscribe', methods=['GET', 'POST'])
+@login_required
+def user_subscribe(email):
+  to_user = UserLogic.find_user_by_email(email)
+  UserLogic.subscribe_to_user(current_user, to_user)
+  return redirect(url_for('user_detail', email=email))
+
+@app.route('/users/<email>/unsubscribe', methods=['GET', 'POST'])
+@login_required
+def user_unsubscribe(email):
+  to_user = UserLogic.find_user_by_email(email)
+  UserLogic.unsubscribe_to_user(current_user, to_user)
+  return redirect(url_for('user_detail', email=email))
+
+@app.route('/groups/<name>/subscribe', methods=['GET', 'POST'])
+@login_required
+def group_subscribe(name):
+  group = GroupLogic.find_group_by_name(name)
+  GroupLogic.subscribe_to_group(current_user, group)
+  return redirect(url_for('group_detail', name=name))
+
+@app.route('/groups/<name>/unsubscribe', methods=['GET', 'POST'])
+@login_required
+def group_unsubscribe(name):
+  group = GroupLogic.find_group_by_name(name)
+  GroupLogic.unsubscribe_to_group(current_user, group)
+  return redirect(url_for('group_detail', name=name))
 
 
 ### NAV
