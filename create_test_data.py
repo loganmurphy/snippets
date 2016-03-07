@@ -22,7 +22,7 @@ def make_user():
   first_name = random.choice(first_names)
   last_name = random.choice(last_names)
   email = '%s.%s@gmail.com' % (first_name, last_name)
-  user = User.get_or_create(db.session, 
+  user = User.get_or_create(db.session,
     id=email,
     email=email,
     first_name=first_name,

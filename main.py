@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from flask import Flask
 from flask import render_template
 from flask import abort, redirect, url_for
@@ -152,7 +153,7 @@ def mynavbar():
 
 nav.init_app(app)
 
-### 
+###
 
 if __name__ == "__main__":
   app.run(host="0.0.0.0", debug=True)
