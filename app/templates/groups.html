@@ -3,10 +3,12 @@
 {% block title %}Show all groups{% endblock %}
 
 {% block content %}
-  <h1>All Groups</h1>
-   {% for group in groups %}
-      <li><a href="/groups/{{ group.name }}">
-        {{ group.name }}
-      </a></li>
-  {% endfor %}
+  <div class="container">
+    <h1>All Groups</h1>
+     {% for group in groups %}
+        <li><a href="/groups/{{ group.name }}">
+          {{ group.name }}
+        </a></li>
+    {% endfor %}
+  </div>
 {% endblock %}

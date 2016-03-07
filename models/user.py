@@ -11,25 +11,30 @@ db = SQLAlchemy()
 class User(Base):
   __tablename__ = 'user'
   id = db.Column(db.String(500), unique=True, primary_key=True)
+  first_name = db.Column(db.String(500))
+  last_name = db.Column(db.String(500))
+  name = db.Column(db.String(500))
+  email = db.Column(db.String(500))
+  picture = db.Column(db.String(500))
 
   group_subscriptions = db.relationship('GroupSubscription', back_populates='user')
   users_following = db.relationship('UserSubscription', foreign_keys="[UserSubscription.from_user_id]")
   users_followees = db.relationship('UserSubscription', foreign_keys="[UserSubscription.to_user_id]")
   group_memberships = db.relationship('GroupMembership')
-  
 
-  def __init__(self, id):
+  def __init__(self, id, first_name=None, last_name=None, name=None, email=None, picture=None):
     self.id = id
+    self.first_name = first_name
+    self.last_name = last_name
+    self.name = name
+    self.email = email
+    self.picture = picture
 
   def get_username(self):
-    return self.email
+    return self.email.split('@')[0]
 
   def get_id(self):
     return self.email
-
-  @property  
-  def email(self):
-    return self.id
 
   @property  
   def is_active(self):
@@ -38,14 +43,6 @@ class User(Base):
   @property
   def is_authenticated(self):
     return True
-
-  @staticmethod
-  def find_or_create_by_email(email):
-    return User(email)
-
-  @staticmethod
-  def find_by_id(id):
-    return User(id)
 
 # this is what it might look like if we were a real application
 # user=User.query.filter_by(email=email).first()

@@ -25,7 +25,6 @@ class OAuthSignIn(object):
     @classmethod
     def get_provider(self, provider_name):
         if self.providers is None:
-            print 'trying to mke providres'
             self.providers={}
             for provider_class in self.__subclasses__():
                 print provider_class
@@ -65,5 +64,6 @@ class GoogleSignIn(OAuthSignIn):
                 decoder = json.loads
         )
         me = oauth_session.get('').json()
-        return (me['name'],
-                me['email'])
+
+        # fields: fmaily_name, given_name, gender, name, email, picture
+        return me

@@ -3,21 +3,23 @@
 {% block title %}Group detail: {{group.name}}{% endblock %}
 
 {% block content %}
-  <h1>{{group.name}}</h1>
+  <div class="container">
+    <h1>{{group.name}}</h1>
 
-  <h2>Members</h2>
-   {% for member_link in group.members %}
-      {% set member = member_link.user %}
-      <li><a href="/users/{{ member.email }}">
-        {{ member.email }}
-      </a></li>
-  {% endfor %}
+    <h2>Members</h2>
+     {% for member_link in group.members %}
+        {% set member = member_link.user %}
+        <li><a href="/users/{{ member.email }}">
+          {{ member.email }}
+        </a></li>
+    {% endfor %}
 
-  <h2>Subscribers</h2>
-   {% for subscriber_link in group.subscribers %}
-     {% set subscriber = subscriber_link.user %}
-      <li><a href="/users/{{ subscriber.email }}">
-        {{ subscriber.email }}
-      </a></li>
-  {% endfor %}
+    <h2>Subscribers</h2>
+     {% for subscriber_link in group.subscribers %}
+       {% set subscriber = subscriber_link.user %}
+        <li><a href="/users/{{ subscriber.email }}">
+          {{ subscriber.email }}
+        </a></li>
+    {% endfor %}
+  </div>
 {% endblock %}

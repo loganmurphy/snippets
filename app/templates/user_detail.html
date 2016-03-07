@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}User detail: {{user.name}}{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1>{{user.name}}</h1>
+
+    <h2>Member of</h2>
+     {% for group_membership in user.group_memberships %}
+        {% set group = group_membership.group %}
+        <li><a href="/groups/{{ group.id }}">
+          {{ group.id }}
+        </a></li>
+    {% endfor %}
+
+     <h2>Subscribed to</h2>
+     {% for group_subscription in user.group_subscriptions %}
+        {% set group = group_subscription.group %}
+        <li><a href="/groups/{{ group.id }}">
+          {{ group.id }}
+        </a></li>
+    {% endfor %}
+
+    <h2>Following</h2>
+      {% for user_following in user.users_following %}
+        {% set user = user_following.to_user %}
+        <li><a href="/users/{{ user.id }}">
+          {{ user.id }}
+        </a></li>
+    {% endfor %}
+
+    <h2>Followees / Followed By</h2>
+      {% for user_followee in user.users_followees %}
+        {% set user = user_followee.from_user %}
+        <li><a href="/users/{{ user.id }}">
+          {{ user.id }}
+        </a></li>
+    {% endfor %}
+  </div>
+{% endblock %}

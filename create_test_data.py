@@ -22,7 +22,13 @@ def make_user():
   first_name = random.choice(first_names)
   last_name = random.choice(last_names)
   email = '%s.%s@gmail.com' % (first_name, last_name)
-  user = User.get_or_create(db.session, id=email)
+  user = User.get_or_create(db.session, 
+    id=email,
+    email=email,
+    first_name=first_name,
+    last_name=last_name,
+    name='%s %s' % (first_name, last_name)
+  )
   return user
 
 users = [make_user() for i in range(0, num_users)]
@@ -59,7 +65,7 @@ for u in users:
 
 for g in groups:
   for i in range(0, members_per_group):
-    add_to_group(g, random.choice(users))
+    add_to_group(random.choice(users), g)
 
 db.session.commit()
 

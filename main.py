@@ -18,7 +18,10 @@ login_manager.login_view = 'login'
 
 @login_manager.user_loader
 def load_user(id):
-  return User.find_by_id(id)
+  try:
+    return db.session.query(User).filter_by(id=id).one()
+  except:
+    return None
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
@@ -33,7 +36,8 @@ def oauth_callback(provider):
   if not current_user.is_anonymous:
     return redirect(url_for('index'))
   oauth = OAuthSignIn.get_provider(provider)
-  username, email = oauth.callback()
+  me_dict = oauth.callback()
+  email = me_dict['email']
 
   if email is None:
     # I need a valid email address for my user identification
@@ -41,7 +45,13 @@ def oauth_callback(provider):
     return redirect(url_for('index'))
 
   # Look if the user already exists
-  user = User.find_or_create_by_email(email)
+  user = User.get_or_create(db.session, id=email)
+  user.first_name = me_dict['given_name']
+  user.family_name = me_dict['family_name']
+  user.email = me_dict['email']
+  user.picture = me_dict['picture']
+  user.name = me_dict['name']
+  db.session.commit()
 
   # Log in the user, by default remembering them for their next visit
   # unless they log out.
@@ -57,6 +67,12 @@ def login():
 @app.route('/')
 @login_required
 def index():
+  return render_template('index.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+  logout_user()
   return render_template('index.html')
 
 @app.route('/groups')
