@@ -1,11 +1,20 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from app import db
+from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
-class Snippet(db.Model):
-  __tablename__ = 'snippet'
+from models.base import Base, get_or_create
 
-  id = db.Column(db.Integer, primary_key=True)
-  user = db.Column(db.String(500))
-  created_at = db.Column(db.DateTime)
-  week = db.Column(db.Integer)
-  year = db.Column(db.Integer)
+db = SQLAlchemy()
+
+class Snippet(Base):
+  __tablename__ = 'snippets'
+  id = db.Column(db.Integer, unique=True, primary_key=True)
+  user_id = db.Column('user_id', db.String, db.ForeignKey('user.id'))
+  created_at = db.Column('created_at', db.DateTime)
+  text = db.Column('text', db.Text)
+
+  def __init__(self, user_id, text, created_at=None):
+    self.user_id = user_id
+    self.text = text
+    self.created_at = created_at or datetime.now()

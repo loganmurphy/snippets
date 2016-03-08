@@ -10,7 +10,7 @@ def get_or_create(model, session, **kwargs):
   else:
     instance = model(**kwargs)
     session.add(instance)
-    session.commit()
+    #session.commit()
     return instance
 
 Base.get_or_create = get_or_create

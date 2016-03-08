@@ -11,6 +11,7 @@ from models.base import Base
 
 from models.group import Group
 from models.user import User
+from models.snippet import Snippet
 from models.link_tables import *
 
 app = Flask(__name__)

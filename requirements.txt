@@ -4,3 +4,4 @@ Flask-Login
 flask-sqlalchemy
 Flask-Bootstrap
 flask_nav
+RandomWords
