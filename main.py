@@ -105,7 +105,8 @@ def group_detail(name):
 def user_detail(email):
   user = UserLogic.find_user_by_email(email)
   return render_template('user_detail.html',
-    user=user
+    user=user,
+    snippets=UserLogic.get_last_snippets(user)
   )
 
 # shitty APIs

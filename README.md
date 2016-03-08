@@ -17,6 +17,12 @@ TODO:
   - view user DONE
   - subscribe to group DONE
   - subscripe to user DONE
+- Snippet support
+  - save snippets DONE
+  - build logic to clamp snippets to week 
+  - save incoming snippets from IMAP
+  - send out snippets via SMTP
+
 - group admin UI
   - figure out how we want to admin this
   - create group

@@ -1,7 +1,10 @@
 from app import db
 from models.group import Group
 from models.user import User
+from models.snippet import Snippet
 from models.link_tables import *
+
+from datetime import date, datetime, timedelta
 
 class UserLogic():
   @staticmethod
@@ -25,3 +28,11 @@ class UserLogic():
       to_user_id = to_user.id
     ).delete()
     db.session.commit()
+
+  @staticmethod 
+  def get_last_snippets(user, max_weeks=10):
+    d = date.today() - timedelta(days=max_weeks+1)
+    return db.session.query(Snippet).filter(
+      Snippet.created_at >= d,
+      Snippet.user_id == user.id
+    ).order_by(Snippet.created_at.desc())

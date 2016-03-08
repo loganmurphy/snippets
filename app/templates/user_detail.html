@@ -26,7 +26,7 @@
         <li><a href="/groups/{{ group.id }}">
           {{ group.id }}
         </a></li>
-    {% endfor %}
+      {% endfor %}
 
      <h2>Subscribed to</h2>
      {% for group_subscription in user.group_subscriptions %}
@@ -34,7 +34,7 @@
         <li><a href="/groups/{{ group.id }}">
           {{ group.id }}
         </a></li>
-    {% endfor %}
+      {% endfor %}
 
     <h2>Following</h2>
       {% for user_following in user.users_following %}
@@ -42,7 +42,7 @@
         <li><a href="/users/{{ user.id }}">
           {{ user.id }}
         </a></li>
-    {% endfor %}
+      {% endfor %}
 
     <h2>Followees / Followed By</h2>
       {% for user_followee in user.users_followees %}
@@ -50,6 +50,13 @@
         <li><a href="/users/{{ user.id }}">
           {{ user.id }}
         </a></li>
-    {% endfor %}
+      {% endfor %}
+
+    <p/>
+    <h1> Snippets </h1>
+      {% for snippet in snippets %}
+        {{ snippet.created_at }} - 
+        {{ snippet.text }}
+      {% endfor %}
   </div>
 {% endblock %}
