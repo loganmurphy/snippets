@@ -52,11 +52,11 @@
         </a></li>
       {% endfor %}
 
-    <p/>
     <h1> Snippets </h1>
       {% for snippet in snippets %}
         {{ snippet.created_at }} - 
-        {{ snippet.text }}
+        <pre>{{ snippet.text }}</pre>
+        <p/><p/>
       {% endfor %}
   </div>
 {% endblock %}
