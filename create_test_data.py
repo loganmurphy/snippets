@@ -75,7 +75,7 @@ def make_snippet(user, days_back):
     for l in range(0, num_lines)]
   text = '\n'.join(lines)
   d = date.today() - timedelta(days=days_back)
-  snippet = Snippet(user_id=user.id, text=text, created_at=d)
+  snippet = Snippet(user_id=user.id, text=text, created_at=d, html=None, recipient="foo@bar.com")
   return snippet
 
 rw = RandomWords()
@@ -95,9 +95,3 @@ for g in groups:
 
 
 db.session.commit()
-
-
-
-
-
-

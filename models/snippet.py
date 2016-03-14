@@ -13,8 +13,12 @@ class Snippet(Base):
   user_id = db.Column('user_id', db.String, db.ForeignKey('user.id'))
   created_at = db.Column('created_at', db.DateTime)
   text = db.Column('text', db.Text)
+  recipient = db.Column('recipient', db.String)
+  html = db.Column('html', db.Text, nullable=True)
 
-  def __init__(self, user_id, text, created_at=None):
+  def __init__(self, user_id, text, recipient, html, created_at=None):
     self.user_id = user_id
     self.text = text
+    self.recipient = recipient
+    self.html = html
     self.created_at = created_at or datetime.now()

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 from flask import Flask
 from flask import render_template
 from flask import abort, redirect, url_for
@@ -155,6 +156,8 @@ def mynavbar():
 # ...
 
 nav.init_app(app)
+
+EmailProcessor(app.config).start()
 
 ###
 

@@ -1,11 +1,15 @@
 import email
+import email.header
 import imaplib
 import re
 import smtplib
 import threading
 import uuid
+import sys
+import traceback
 
-from app import app
+from app import db_session
+from models.snippet import Snippet
 
 class Message:
     def __init__(self, uid, rawMessageData):
@@ -22,11 +26,40 @@ class Message:
     def senderEmail(self):
         return self.sender()[1]
 
+    def recipient(self):
+        return email.utils.parseaddr(self.message["To"])
+
+    def recipientEmail(self):
+        return self.recipient()[1]
+
     def senderPrettyName(self):
         return self.sender()[0]
 
     def isReply(self):
         return 'In-Reply-To' in self.message
+
+    """
+    Returns None if not found.
+    """
+    def bodyText(self):
+        textSections = filter(lambda x: x.get_content_type() == 'text/plain', self.message.walk())
+        return textSections[0].get_payload() if len(textSections) > 0 else None
+
+    """
+    Returns None if not found.
+    """
+    def bodyHtml(self):
+        htmlSections = filter(lambda x: x.get_content_type() == 'text/html', self.message.walk())
+        return htmlSections[0].get_payload() if len(htmlSections) > 0 else None
+
+    """
+    Returns None if not found.
+    """
+    def bodyHtmlOrText(self):
+        result = self.bodyHtml()
+        if not result:
+            result = self.bodyText()
+        return result
 
 class IMAPGetMessagesException(Exception):
     pass
@@ -106,11 +139,10 @@ class IMAPConnection:
         if status != 'OK':
             raise IMAPDeleteMessageException("could not delete message with uid: %s from mailbox %s - error %s" % (msgUID, self.currentMailbox, data))
 
-
 class SMTPConnection:
-    def __init__(self, server, creds):
-        self.smtpConnection = smtplib.SMTP_SSL("smtp.gmail.com")
-        self.smtpConnection.login(creds.email, creds.password)
+    def __init__(self, server, userName, password):
+        self.smtpConnection = smtplib.SMTP_SSL(server)
+        self.smtpConnection.login(userName, password)
 
     def __del__(self):
         self.smtpConnection.quit()
@@ -118,66 +150,44 @@ class SMTPConnection:
     def sendMessage(self, sender, receivers, msgString):
         self.smtpConnection.sendmail(sender, receivers, msgString)
 
-class EmailProcessor():
+class EmailProcessor:
     def __init__(self, config):
         self.config = config
 
     @staticmethod
-    def isSnippetTest(message):
-        return not message.isReply() and message.subject().find("SnippetTest") != -1
-
-    @staticmethod
-    def isCommandMessage(message):
-        return isSnippetTest(message)
-
-    """
-    Process any special command messages and return the filtered list.  These include:
-      Subject contains "SnippetTest" and is not a reply - send me a test snippet prompt
-    """
-    @staticmethod
-    def processCommandMessages(messages, imapConnection, smtpConnection):
-        commandMessages = filter(lambda m: isCommandMessage(m), messages)
-        print "Found %d command messages" % len(commandMessages)
-        for cmdMsg in commandMessages:
-            if isSnippetTest(cmdMsg):
-                testSnippetUUID = uuid.uuid4()
-                print "Creating test snippet prompt with test uuid: %s and delivering to %s" % (str(testSnippetUUID), cmdMsg.senderEmail())
-                receivers = [cmdMsg.senderEmail()]
-                sender = "snippets@twitter.com"
-                testSnippetEmail = email.mime.text.MIMEText("Hi %s! You have requested a test snippet prompt, and here it is" % (cmdMsg.senderPrettyName()))
-                testSnippetEmail['Subject'] = "Test Snippet Prompt UUID: %s" % str(testSnippetUUID)
-                testSnippetEmail['From'] = sender
-                testSnippetEmail['To'] = ",".join(receivers)
-                smtpConnection.sendMessage(sender, receivers, testSnippetEmail.as_string())
-                imapConnection.createMailboxIfNotExists(cmdMsg.senderEmail())
-                imapConnection.openMailbox() # open INBOX
-                imapConnection.copyMessageToMailbox(cmdMsg.uid, cmdMsg.senderEmail())
-                imapConnection.deleteMessageFromCurrentMailbox(cmdMsg.uid)
-        return filter(lambda m: not isCommandMessage(m), messages)
-
-    @staticmethod
-    def processNonCommandMessages(nonCommandMessages, imapConnection, smtpConnection):
-        for msg in nonCommandMessages:
-            print "Message subject: %s sender: %s" % (msg.subject(), msg.senderEmail())
+    def processMessages(messages, imapConnection):
+        for msg in messages:
+            try:
+                storageMailbox = msg.senderEmail()
+                imapConnection.createMailboxIfNotExists(storageMailbox)
+                imapConnection.openMailbox()
+                imapConnection.copyMessageToMailbox(msg.uid, storageMailbox)
+                imapConnection.deleteMessageFromCurrentMailbox(msg.uid)
+                # TODO: should extract creation time
+                snippet = Snippet(
+                    user_id=msg.senderEmail(),
+                    recipient=msg.recipientEmail(),
+                    text=msg.bodyText(),
+                    html=msg.bodyHtml()
+                )
+                db_session.add(snippet)
+            except:
+                print "Abandoning processing of message subject: %s sender: %s" % (msg.subject(), msg.senderEmail())
+                traceback.print_exc()
+        db_session.commit()
 
     def processInbox(self):
-      print "Processing inbox"
-      conn = imaplib.IMAP4_SSL(self.config['EMAIL']['imap_host'])
-      conn.login(self.config['EMAIL']['username'], self.config['EMAIL']['password'])
-      imapConnection = IMAPConnection(conn)
-      imapConnection.openMailbox()
-      inboxMessages = imapConnection.getAllMessagesInCurrentMailbox()
-      print "Fetched %d messages" % (len(inboxMessages))
-      # f = open("/Users/kgalloway/emailsample.txt", "wb")
-      # f.write(inboxMessages[0].rawMessageData)
-      smtpConnection = SMTPConnection(self.config['EMAIL']['smtp_host'], creds)
-      nonCommandMessages = processCommandMessages(inboxMessages, imapConnection, smtpConnection)
-      print "Fetched %d non-command messages" % (len(nonCommandMessages))
-      processNonCommandMessages(nonCommandMessages, imapConnection, smtpConnection)
-      threading.Timer(30.0, processInbox).start()
+        try:
+            userName = self.config['IMAP_CONFIG']['username']
+            password = self.config['IMAP_CONFIG']['password']
+            conn = imaplib.IMAP4_SSL(self.config['IMAP_CONFIG']['imap_host'])
+            conn.login(userName, password)
+            imapConnection = IMAPConnection(conn)
+            imapConnection.openMailbox()
+            inboxMessages = imapConnection.getAllMessagesInCurrentMailbox()
+            EmailProcessor.processMessages(inboxMessages, imapConnection)
+        finally:
+            threading.Timer(30.0, self.processInbox).start()
 
     def start(self):
-      threading.Timer(1, self.processInbox).start()
-
-if __name__ == "__main__":
-  EmailProcessor(app.config).start()
+        threading.Timer(1, self.processInbox).start()
