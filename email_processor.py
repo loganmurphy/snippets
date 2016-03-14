@@ -8,13 +8,15 @@ import uuid
 import sys
 import traceback
 
-from app import db_session
+from app import db_sessionmaker
 from models.snippet import Snippet
+from models.processed_snippet import ProcessedSnippet
 
 class Message:
     def __init__(self, uid, rawMessageData):
         self.message = email.message_from_string(rawMessageData)
         self.uid = uid
+        self.messageId = unicode(email.header.decode_header(self.message["Message-ID"])[0][0])
         self.rawMessageData = rawMessageData
 
     def subject(self):
@@ -157,7 +159,17 @@ class EmailProcessor:
     @staticmethod
     def processMessages(messages, imapConnection):
         for msg in messages:
+            db_session = db_sessionmaker()
             try:
+                # mark this message as processed so that only this instance processes it
+                processed_snippet = ProcessedSnippet(
+                  user_id=msg.senderEmail(),
+                  recipient=msg.recipientEmail(),
+                  msg_uid=msg.messageId,
+                )
+                db_session.add(processed_snippet)
+                db_session.commit()
+                # At this point, only this instance can process this message
                 storageMailbox = msg.senderEmail()
                 imapConnection.createMailboxIfNotExists(storageMailbox)
                 imapConnection.openMailbox()
@@ -171,10 +183,12 @@ class EmailProcessor:
                     html=msg.bodyHtml()
                 )
                 db_session.add(snippet)
+                db_session.commit()
+                db_session.close()
             except:
+                db_session.rollback()
                 print "Abandoning processing of message subject: %s sender: %s" % (msg.subject(), msg.senderEmail())
                 traceback.print_exc()
-        db_session.commit()
 
     def processInbox(self):
         try:

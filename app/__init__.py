@@ -12,6 +12,7 @@ from models.base import Base
 from models.group import Group
 from models.user import User
 from models.snippet import Snippet
+from models.processed_snippet import ProcessedSnippet
 from models.link_tables import *
 
 app = Flask(__name__)
@@ -22,9 +23,10 @@ app.secret_key = app.config['SECRET_KEY']
 
 engine = create_engine(app.config['DATABASE_URI'])
 
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
+db_sessionmaker = sessionmaker(autocommit=False,
+                               autoflush=False,
+                               bind=engine)
+db_session = scoped_session(db_sessionmaker)
 
 Base.metadata.create_all(engine)
 db_session.commit()
